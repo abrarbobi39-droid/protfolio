@@ -25,5 +25,5 @@ RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available
 
 EXPOSE 80
 
-# Auto run database migration and start Apache server
-CMD sh -c "php artisan migrate --force && apache2-foreground"
+# Auto run database migration with seed and start Apache server
+CMD sh -c "php artisan migrate --force --seed && apache2-foreground"
