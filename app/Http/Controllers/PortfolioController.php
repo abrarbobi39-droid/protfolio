@@ -1,4 +1,4 @@
- <?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -11,10 +11,8 @@ class PortfolioController extends Controller
 {
     public function index()
     {
-        // 1. Fetch skills ordered by category to ensure proper grouping
         $skills = Skill::orderBy('category')->get()->groupBy('category');
 
-        // 2. Fetch latest projects and ensure technologies are properly casted/decoded
         $projects = Project::latest()->get()->map(function ($project) {
             if (is_string($project->technologies)) {
                 $project->technologies = json_decode($project->technologies, true) 
@@ -34,7 +32,6 @@ class PortfolioController extends Controller
             'message' => 'required|string',
         ]);
 
-        // Explicitly pass validated data for mass-assignment security
         Contact::create($validated);
 
         return back()->with('success', 'Your message has been sent successfully!');
