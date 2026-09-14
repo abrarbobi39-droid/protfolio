@@ -223,12 +223,20 @@
 
                         <div>
                             <div class="flex flex-wrap gap-2 my-4">
-                                @if($project->technologies)
-                                    @foreach($project->technologies as $tech)
-                                        <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                            {{ $tech }}
-                                        </span>
-                                    @endforeach
+                                @if(!empty($project->technologies))
+                                    @php
+                                        $techs = is_array($project->technologies) 
+                                            ? $project->technologies 
+                                            : json_decode($project->technologies, true);
+                                    @endphp
+
+                                    @if(is_array($techs))
+                                        @foreach($techs as $tech)
+                                            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                {{ $tech }}
+                                            </span>
+                                        @endforeach
+                                    @endif
                                 @endif
                             </div>
 
