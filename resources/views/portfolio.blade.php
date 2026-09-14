@@ -135,7 +135,7 @@
         </div>
     </section>
 
-    <!-- 5. Skills Badges Section (Single Merged Tools Card) -->
+    <!-- 5. Skills Badges Section (Renders All Dynamic Categories Safely) -->
     <section id="skills" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
             <span class="text-emerald-400 font-mono text-xl">01.</span> Technical Skills
@@ -143,62 +143,25 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($skills as $category => $categorySkills)
-                @if(!in_array(strtolower($category), ['tools', 'tools & software']))
-                    <div class="p-6 rounded-2xl bg-slate-800/30 border border-slate-800">
-                        <h3 class="text-emerald-400 font-mono text-sm uppercase font-semibold tracking-wider mb-4">{{ $category }}</h3>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($categorySkills as $skill)
-                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                                    <i class="{{ $skill->icon }} text-emerald-400"></i>
-                                    {{ $skill->name }}
-                                </span>
-                            @endforeach
-                        </div>
+                <div class="p-6 rounded-2xl bg-slate-800/30 border border-slate-800">
+                    <h3 class="text-emerald-400 font-mono text-sm uppercase font-semibold tracking-wider mb-4">{{ $category }}</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($categorySkills as $skill)
+                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
+                                <i class="{{ $skill->icon ?? 'fa-solid fa-code' }} text-emerald-400"></i>
+                                {{ $skill->name }}
+                            </span>
+                        @endforeach
                     </div>
-                @endif
-            @endforeach
-
-            <!-- Consolidated Single Tools & Software Card -->
-            <div class="p-6 rounded-2xl bg-slate-800/30 border border-slate-800">
-                <h3 class="text-emerald-400 font-mono text-sm uppercase font-semibold tracking-wider mb-4">Tools & Software</h3>
-                <div class="flex flex-wrap gap-2">
-                    <!-- DB Skills dynamically rendered if exists under 'Tools' or 'Tools & Software' -->
-                    @foreach($skills as $category => $categorySkills)
-                        @if(in_array(strtolower($category), ['tools', 'tools & software']))
-                            @foreach($categorySkills as $skill)
-                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                                    <i class="{{ $skill->icon }} text-emerald-400"></i>
-                                    {{ $skill->name }}
-                                </span>
-                            @endforeach
-                        @endif
-                    @endforeach
-
-                    <!-- Static Tools -->
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                        <i class="fa-solid fa-code text-emerald-400"></i> VS Code
-                    </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                        <i class="fa-solid fa-server text-emerald-400"></i> XAMPP
-                    </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                        <i class="fa-brands fa-git-alt text-emerald-400"></i> Git
-                    </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                        <i class="fa-brands fa-github text-emerald-400"></i> GitHub
-                    </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium hover:border-emerald-500/50 hover:text-white transition">
-                        <i class="fa-solid fa-paper-plane text-emerald-400"></i> Postman
-                    </span>
                 </div>
-            </div>
+            @endforeach
         </div>
     </section>
 
     <!-- 6. Projects Showcase Section -->
     <section id="projects" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold mb-10 flex items-center gap-3">
-            <span class="text-emerald-400 font-mono text-xl">02.</span> Projects
+            <span class="text-emerald-400 font-mono text-xl">02.</span> Featured Projects
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -223,21 +186,23 @@
 
                         <div>
                             <div class="flex flex-wrap gap-2 my-4">
-                                @if(!empty($project->technologies))
-                                    @php
-                                        $techs = is_array($project->technologies) 
-                                            ? $project->technologies 
-                                            : json_decode($project->technologies, true);
-                                    @endphp
+                                @php
+                                    // Parse technologies safety check (Array or JSON)
+                                    $techList = [];
+                                    if (is_array($project->technologies)) {
+                                        $techList = $project->technologies;
+                                    } elseif (is_string($project->technologies)) {
+                                        $techList = json_decode($project->technologies, true) ?? array_map('trim', explode(',', $project->technologies));
+                                    }
+                                @endphp
 
-                                    @if(is_array($techs))
-                                        @foreach($techs as $tech)
-                                            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                                {{ $tech }}
-                                            </span>
-                                        @endforeach
+                                @foreach($techList as $tech)
+                                    @if(!empty($tech))
+                                        <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                            {{ $tech }}
+                                        </span>
                                     @endif
-                                @endif
+                                @endforeach
                             </div>
 
                             <div class="flex items-center space-x-4 pt-2 border-t border-slate-800 text-sm">
